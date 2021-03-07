@@ -79,10 +79,10 @@ public class App
     	
     	
     	System.out.println("Enter new name: ");
-    	String name = sc.nextLine();
+    	name = sc.nextLine();
     	
     	System.out.println("Enter new address: ");
-    	String address = sc.nextLine();
+    	address = sc.nextLine();
     	
     	new App().updateLearner(Integer.parseInt(id), name, address);
     	new App().getAllRecords();
@@ -91,8 +91,8 @@ public class App
     	
     	// -------- Delete -----------//
     	System.out.println("Please enter Id of record to be deleted: ");
-    	int id = sc.nextInt();
-    	new App().deleteLearner(id);
+    	id = sc.nextLine();
+    	new App().deleteLearner(Integer.parseInt(id));
     	new App().getAllRecords();
 
     }
