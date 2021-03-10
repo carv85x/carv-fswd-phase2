@@ -5,12 +5,26 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Scanner;
+import java.util.TreeMap;
 
+
+/*************************************************
+ * Phase 2 - Become a Backend Expert
+ * 
+ * Class Assignment 1 - JDBC Maven Assignment
+ * 
+ * Author: Camilo Rodriguez
+ * 
+ * Created 'Driver' to implement JDBC using Maven
+ *************************************************/
 public class Driver {
 	
 	String qry;	
 	static Connection dbCon;
+	
 	final int BY_F_NAME = 1;
 	final int BY_L_NAME = 2;
 	final int BY_ADDRESS = 3;
@@ -67,6 +81,7 @@ public class Driver {
 		String lName;
 		String address;
 		int id;
+		int type;
 		
 		// Call main menu
 		app.showMenu();
@@ -94,7 +109,7 @@ public class Driver {
 					
 				case 3:
 					app.showSearchMenu();
-					int type = Integer.parseInt(sc.nextLine());
+					type = Integer.parseInt(sc.nextLine());
 					
 					System.out.println("Enter value to search: ");
 					String text = sc.nextLine();
@@ -124,6 +139,10 @@ public class Driver {
 					break;
 					
 				case 6:
+					app.showSortMenu();
+					type = Integer.parseInt(sc.nextLine());
+					app.sortRecords(type, app.getRecords());
+					app.showMenu();
 					break;
 					
 				default:
@@ -131,17 +150,12 @@ public class Driver {
 				
 			}
 			
-			input = sc.nextLine();
-			
-			ans = Integer.parseInt(input);
-			
-		}
-
-		
-		
-		
+			input = sc.nextLine();			
+			ans = Integer.parseInt(input);			
+		}		
 		
 	}
+	
 	
 	void showMenu() {
 		
@@ -163,15 +177,15 @@ public class Driver {
 		System.out.println("3. Address");
 	}
 	
+	
 	void showSortMenu() {
 		
 		System.out.println("Sort by:");
-		System.out.println("a. First Name");
-		System.out.println("b. Last Name");
-		System.out.println("c. Address");
-		System.out.println("d. ID");
-	}
-	
+		System.out.println("1. First Name");
+		System.out.println("2. Last Name");
+		System.out.println("3. Address");
+		System.out.println("4. ID");
+	}	
 	
 	
 	void addRecord(String fName, String lName, String address) {
@@ -254,6 +268,7 @@ public class Driver {
 
 	}
 	
+	// Update all fields using ID
 	void updateRecord(String fName, String lName, String address, int id) {
 		
 		// Write the query to update
@@ -280,6 +295,7 @@ public class Driver {
 		
 	}
 	
+	// Delete record using ID
 	void deleteRecord(int id) {
 		// Write query to delete
 		qry = "DELETE FROM learners WHERE Id = ?";
@@ -305,7 +321,7 @@ public class Driver {
 	void displayResultSet(ResultSet rs) {
 		try {
 			while(rs.next()) {
-				System.out.print("ID : " + rs.getInt("ID"));
+				System.out.print("ID : " + rs.getInt("Id"));
 				System.out.print(", First Name : " + rs.getString("FirstName"));
 				System.out.print(", Last Name : " + rs.getString("LastName"));
 				System.out.print(", Address : " + rs.getString("Address"));
@@ -317,9 +333,47 @@ public class Driver {
 		}
 	}
 	
-	void sortRecords(int sortBy) {
+	// Sort records by selected column
+	void sortRecords(int sortBy, ResultSet rs) {
+		// Use TreeMap to sort records by default
+		Map<String, String> tm = new TreeMap<String, String>();
+		String sortKey = "";
 		
+		// Set value for sortKey
+		if(sortBy == SORT_BY_FNAME) {
+			sortKey = "FirstName";	
+		} else if(sortBy == SORT_BY_LNAME) {
+			sortKey = "LastName";
+		} else if(sortBy == SORT_BY_ADDRESS) {
+			sortKey = "Address";
+		}
+		
+		// Populate TreeMap
+		try {
+			while(rs.next()) {
+				
+				String learner 	= "Id: " 		+ rs.getInt("Id") 			+ ", "
+								+ "FirstName: " + rs.getString("FirstName")	+ ", "
+								+ "LastName: "	+ rs.getString("LastName")	+ ", "
+								+ "Address: "	+ rs.getString("Address");
+				
+				if(sortBy == SORT_BY_ID)				
+					tm.put(Integer.toString(rs.getInt("Id")), learner);
+				else
+					tm.put(rs.getString(sortKey), learner);					
+			}
+			
+		} catch (SQLException e) {
+			System.out.println("Unable to review Result Set: " + e);
+		}
+		
+		// Display sorted result set
+		for(Entry<String, String> e:tm.entrySet()) {
+			System.out.println(e.getValue());			
+		}
 	}
+	
+
 	
 	
 }
